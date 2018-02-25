@@ -1,0 +1,22 @@
+Isaac Mooney - February, 2018
+
+This directory contains the analysis for the data-driven correction (hence "ddc") on matched jets in Pythia8.
+
+The goal of this project is to investigate the feasibility of a novel unfolding procedure in which, rather than a pythia prior, one uses available detector-level information in data - namely, the tracking efficiency and the detector-level constituent spectrum - to correct back to particle-level. The first investigation was done on a toy model which is also on my GitHub page (repository: Toy-Closure-Test). It was demonstrated that a folding of the particle-level leading-jet track multiplicity with the (eta-averaged) STAR efficiency is quite well-modeled by a Poisson distribution with reasonable parameters. I then began a more realistic study in Pythia8 by geometrically matching particle-level and detector-level jets from the same event, first after applying a flat tracking efficiency of 80%, then with STAR's 2007 pp efficiency. Either may be selected in the code via command line arguments.
+
+There remains much work to be done. I plan to:
+      1) Add momentum smearing
+      2) Add tracks back according to the radial profile distribution of the jets
+      3) Determine an appropriate parameter in the Poisson number loss distribution by folding the constituent spectrum with the efficiency distribution
+
+Important directories and files:
+	  *Be sure to run mkdir for out/, bin/, lib/, and src/obj/, in the efficiency/ directory, and bin/, results/, and src/obj/, in the main directory.
+	  *efficiency/ contains the necessary material to make the STAR efficiency shared library - except for a root file which I have not uploaded (my email is fs3383@wayne.edu).
+	  *src/ contains the matched jet analysis in the files "ddc_matched.cxx", "analysis_funcs.cxx", and "analysis_funcs.h".
+	  *bins.cmnd in the main directory is read in by the analysis in order to stitch together 11 Pythia pT hard-bins from 5 to 60 GeV (currently).
+	  *out/ contains many TTree analyzers. The analysis may be run in "fat" mode (run the program with a -h flag for more information) which produces a much more comprehensive output root file. These TTree analyzers are useful for analyzing those trees. However, I haven't used them since I had Root5, so they are possibly deprecated. They also will need to have file paths/names updated.
+	  *matchedjetdiffs.C is the macro which runs the corrections on the matched jets once they've been matched via bin/ddc_matched
+	  *plotting_diffs.C is the plotting macro.
+
+
+Please report any errors to fs3383@wayne.edu
