@@ -25,7 +25,6 @@
 using namespace std;
 
 void efficiency_plots () {
-  //gRandom->Uniform(0.0, 2pi) for later (check if it's -pi to pi or 0 to 2pi).
   gStyle->SetOptStat(0);
   gSystem->Load("lib/libMyJetLib.so"); //doesn't work here for some reason - have to load it in a root session
   
@@ -34,33 +33,13 @@ void efficiency_plots () {
     TH3::SetDefaultSumw2();
     
     TFile *input = new TFile("../out/ddc_matched_skinny_real.root");
-    TTree *matched = (TTree*) input->Get("matchedJets");
-    TH1 * radial_dist = (TH1D*) input->Get("radial_distmatched");
-    
-    Double_t weight;
-    TClonesArray *part = new TClonesArray("TLorentzVector");
-    TClonesArray *det = new TClonesArray("TLorentzVector");
-    TClonesArray *cons = new TClonesArray("TLorentzVector");
-    matched->SetBranchAddress("c_matchedpartJets",&part);
-    matched->SetBranchAddress("c_matcheddetJets",&det);
-    matched->SetBranchAddress("c_matchedCons", &cons);
-    matched->SetBranchAddress("weight", &weight);
     
     TFile *out = new TFile("out/effic_plots.root", "RECREATE");
 
     TH1D *conspt_pminusd = (TH1D*) input->Get("ptconsdetmatched");//("cons_pt");
-    //TH1D *conspt_pminusd = new TH1D("conspt_pminusd","Constituent p_{T} spectrum (detector-level)",30,0,30);//,60,0,60);
-    //TH2 *cons2D = new TH2D("cons2D","Constituent spectrum (detector-level)",10,-1,1,10,0,10);
     
-    unsigned nEntries = matched->GetEntries();
-
     //~~~~~~~~~~~~(1/eff - 1)~~~~~~~~~~~~//
     ktTrackEff* eff = new ktTrackEff();
-
-    unsigned eta_bins = 10, pt_bins = 30;
-    TH2 *effhist = new TH2D("effhist","",eta_bins,-1,1,pt_bins,0,30);
-    TH2 *effinv = new TH2D("effinv","",eta_bins,-1,1,pt_bins,0,30);
-    TH2 *effinvminus1 = new TH2F("effinvminus1","",eta_bins,-1,1,pt_bins,0,30);
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
     
@@ -80,7 +59,7 @@ void efficiency_plots () {
     mult->SetDirectory(0);
     mult->SetName("mult");
 
-    TCanvas *c1 = new TCanvas("c1","c1",800,800);c1->cd(); //c1->SetLogy();
+    //TCanvas *c1 = new TCanvas("c1","c1",800,800);c1->cd(); //c1->SetLogy();
     eff_inv_minus_one_proj->GetXaxis()->SetRangeUser(0.5,60);
     eff_inv_minus_one_proj->SetLineColor(kBlue);
     //eff_proj->Draw("same");
