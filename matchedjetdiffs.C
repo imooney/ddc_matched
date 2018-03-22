@@ -40,7 +40,7 @@ void matchedjetdiffs (){//(string filesize, string effic_type) {
     TFile *input = new TFile(("out/ddc_matched_" + filesize + "_" + effic_type + ".root").c_str(), "READ");
     TTree *matched = (TTree*) input->Get("matchedJets");
     TF1 * nbnaive = new TF1("nbnaive","ROOT::Math::negative_binomial_pdf(x,0.8,1)",-0.5, 10.5);
-    TF1 * poisnaive = new TF1("poisnaive","ROOT::Math::poisson_pdf(x,0.4764)",-0.5,10.5);
+    TF1 * poisnaive = new TF1("poisnaive","ROOT::Math::poisson_pdf(x,1.22)"/*0.63)*/ /*0.4764)"*/,-0.5,10.5);
     TF1 * binnaive = new TF1("binnaive","ROOT::Math::binomial_pdf(x,0.2,5)",-0.5,10.5);
     TH1 * numdiff = (TH1D*) input->Get("numdiffmatched");
     TH1 * radial_dist = (TH1D*) input->Get("radial_distmatched");

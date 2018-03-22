@@ -100,7 +100,9 @@ namespace analysis {
     //closest (eta-phi) jet after correction
   void geometric_diff(Pythia8::Pythia & pythia, const std::vector<fastjet::PseudoJet> effic_jets, const std::vector<fastjet::PseudoJet> cut2_jets,
                         double & ptdiff, int & num_diff, int & num_before, int & num_after, double & rel_diff, TTree * matched,
-		      TClonesArray & part, TClonesArray & det, TClonesArray & cons, TH1 * hist, TH1 * hist1, TH1 * hist2, TH1 * hist3, TH1 *radial, double & det_multiplicity, double & nJets) {
+		      TClonesArray & part, TClonesArray & det, TClonesArray & cons,
+		      TH1 * hist, TH1 * hist1, TH1 * hist2, TH1 * cons_part_matched, TH1 * cons_det_matched, TH1 *radial, TH1 * diff_for_poisson_parameter,
+		      double & det_multiplicity, double & nJets, double & nTracks, ktTrackEff* te, double & matched_weightsum) {
         //initializing relevant quantities
         double mindist  =   99999.0;
         double pt_diff  =  -99999.0;
@@ -117,6 +119,7 @@ namespace analysis {
         
         num_b   = cut2_jets[0].constituents().size();
         //starting with jet passing cuts, loop over jets before efficiency to find best match
+	double pseudo_particle_level_multiplicity = 0;
         for (unsigned i = 0; i < cut2_jets.size(); ++ i) {
             double dist = effic_jets[0].delta_R(cut2_jets[i]);
             //implies found a match with highest pT (since it's ordered by pT)
@@ -129,24 +132,50 @@ namespace analysis {
                 new ( det[which - 1] ) TLorentzVector(effic_jets[0].px(),effic_jets[0].py(),
                                                           effic_jets[0].pz(),effic_jets[0].E());
                 cons.Clear();
+		pseudo_particle_level_multiplicity = 0;
                 for (unsigned j = 0; j < effic_jets[0].constituents().size(); ++ j) {
+		  if (gRandom->Uniform(0.0, 1.0) < te->EffPPY06(effic_jets[0].constituents()[j].eta(), effic_jets[0].constituents()[j].pt())) {
+		    pseudo_particle_level_multiplicity += 1/te->EffPPY06(effic_jets[0].constituents()[j].eta(), effic_jets[0].constituents()[j].pt());
+		  }
+		  					       
+		  nTracks += pythia.info.sigmaGen();
                     new ( cons[j] ) TLorentzVector(effic_jets[0].constituents()[j].px(),effic_jets[0].constituents()[j].py(),
                                                        effic_jets[0].constituents()[j].pz(),effic_jets[0].constituents()[j].E());
 		    radial->Fill(effic_jets[0].delta_R(effic_jets[0].constituents()[j]), pythia.info.sigmaGen());
                 }
+		diff_for_poisson_parameter->Fill(pseudo_particle_level_multiplicity - effic_jets[0].constituents().size());
+
+		
                 for (unsigned j = 0; j < cut2_jets[i].constituents().size(); ++ j) {
-                    hist3->Fill(cut2_jets[i].constituents()[j].pt(), pythia.info.sigmaGen());
+                    cons_part_matched->Fill(cut2_jets[i].constituents()[j].pt(), pythia.info.sigmaGen());
                 }
+		for (unsigned j = 0; j < effic_jets[0].constituents().size(); ++ j) {
+                    cons_det_matched->Fill(effic_jets[0].constituents()[j].pt(), pythia.info.sigmaGen());
+                }
+
+		
                 hist->Fill(cut2_jets[i].constituents().size() - effic_jets[0].constituents().size(), pythia.info.sigmaGen());
                 hist1->Fill(cut2_jets[i].constituents().size(), pythia.info.sigmaGen());
                 hist2->Fill(effic_jets[0].constituents().size(), pythia.info.sigmaGen());
+		
                 matched->Fill();
+
+		matched_weightsum += pythia.info.sigmaGen();
                 return;
                 //break;
             }
         }
         return;
     }
+
+  /*void poisson_parameter_determination (jets,ktTrackEff* te) {
+    //need - for each matched detector-level jet, loop over number of tracks and add 1/efficiency of that track's pt/eta to a running "particle-level" multiplicity counter, reset for each jet. The mean or most probable value of that histogram should be the poisson parameter.
+
+    
+    return;
+  }
+  */
+  
     ////////////////////////////////////////////////////////////////////////////
     //IMPLEMENTATION FOR CLASS 'ANALYSIS::CONTAINERS'!
     
