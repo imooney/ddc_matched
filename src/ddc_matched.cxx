@@ -167,7 +167,10 @@ int main(int argc, char ** argv) {
     TH1 * ptconspartmatched = new TH1D("ptconspartmatched", "", 30,0.2, 30.2);
     TH1 * ptconsdetmatched = new TH1D("ptconsdetmatched", "", 30,0.2,30.2);
     TH1 * radial_distmatched = new TH1D("radial_distmatched","",nRange,-0.05,0.55);
-    TH1 * diff_for_poisson_parameter = new TH1D("diff_for_poisson_parameter","",15,-0.5,14.5);
+    TH1 * radial_distmatched_temp = new TH1D("radial_distmatched_temp","",nRange,-0.05,0.55);
+
+    //temp histo:
+    TH1 * pthat = new TH1D("pthat","",70,0,70);
     
     //---------------------------Initialize Pythia----------------------------//
     Pythia pythia;
@@ -233,7 +236,7 @@ int main(int argc, char ** argv) {
     //tracking efficiency
     ktTrackEff* tEff = new ktTrackEff();
 
-    double nJets = 0.0, nTracks = 0.0;
+    double nJets = 0.0, nTracks = 0.0, nJets_matched = 0.0, nTracks_matched = 0.0, nJets_matched_temp = 0.0;
     
     for (int iBin = 0; iBin < nBin; ++ iBin) {//bin loop
         //initialize pythia in this pT hardbin
@@ -455,8 +458,8 @@ int main(int argc, char ** argv) {
                                         holder->c_num_diff, holder->c_num_before,
                                         holder->c_num_after, holder->c_rel_diff, holder->tmatched,
 				   c_matchedpartJets, c_matcheddetJets, c_matchedCons,
-				   numdiffmatched, numpartmatched, numdetmatched, ptconspartmatched, ptconsdetmatched, radial_distmatched, diff_for_poisson_parameter,
-				   holder->det_multiplicity, nJets, nTracks, tEff, matched_weightsum);
+				   numdiffmatched, numpartmatched, numdetmatched, ptconspartmatched, ptconsdetmatched, radial_distmatched, radial_distmatched_temp, pthat,
+				   holder->det_multiplicity, nJets_matched, nJets_matched_temp, nTracks_matched, tEff, matched_weightsum);
             holder->tdiffs->Fill();
         }
             
@@ -485,8 +488,8 @@ int main(int argc, char ** argv) {
     double sigmaNorm = (double) (binwidth_inverse / (double) unmatched_weightsum); //scaling by sigmaNorm should make the plots = 1/sigma dsigma/d(quantity)
     double sigmaNorm_matched =  (double) (binwidth_inverse / (double) matched_weightsum);
 
-    nJets *= (double) (1/(double) unmatched_weightsum);
-    nTracks *= (double) (1/(double) unmatched_weightsum);
+    //nJets_matched *= (double) (1/(double) unmatched_weightsum);
+    //nTracks_matched *= (double) (1/(double) unmatched_weightsum);
         
     //scaling histograms by the bin width and the cross section
     testpt->Scale((double) sigmaNorm); ctestpt->Scale(sigmaNorm);
@@ -498,9 +501,10 @@ int main(int argc, char ** argv) {
 
     //LATER: THINK ABOUT WHICH ONES SHOULD BE SCALED BY UNMATCHED WEIGHTSUM WHICH ONES SHOULD BE MATCHED WEIGHTSUM
 
-    double binwidth_inverse_for_radial = 1.0; //100.0;  // 1/bin_width is 100 here, but not dividing by it, so the integral is average track multiplicity.
-    double sigmaNorm_for_radial = (double) (binwidth_inverse_for_radial / (double) unmatched_weightsum);
-    radial_distmatched->Scale((double) sigmaNorm_for_radial/ (double) nJets);
+    double binwidth_inverse_for_radial = 100.0; //100.0;  // 1/bin_width is 100 here, but not dividing by it, so the integral is average track multiplicity.
+    double sigmaNorm_for_radial = (double) (binwidth_inverse_for_radial);// / (double) unmatched_weightsum);
+    radial_distmatched->Scale(sigmaNorm_for_radial / (double) nJets_matched);
+    radial_distmatched_temp->Scale(sigmaNorm_for_radial / (double) nJets_matched_temp);
     
     pythia.stat();
     

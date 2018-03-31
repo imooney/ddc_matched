@@ -65,23 +65,11 @@ $(BDIR)/%  : $(ODIR)/%.o
 ############################# Main Targets ####################################
 ###############################################################################
 
-all : $(BDIR)/ddc_matched#$(BDIR)/ktTrackEff
+all : $(BDIR)/testing_wrapper 
 
-$(SDIR)/dict.cxx	:	$(SDIR)/ktTrackEff.hh
-	cd $(SDIR);	rootcint -f dict.cxx -c -I. ./ktTrackEff.hh
+$(ODIR)/testing_wrapper.o		: $(SDIR)/testing_wrapper.cxx $(SDIR)/testing_wrapper.h
 
-$(ODIR)/dict.o	:	$(SDIR)/dict.cxx
-
-$(ODIR)/ktTrackEff.o	:	$(SDIR)/ktTrackEff.cxx $(SDIR)/ktTrackEff.hh
-
-$(BDIR)/ktTrackEff	:	$(ODIR)/dict.o $(ODIR)/ktTrackEff.o
-
-#lib/libMyJetlib.so	:	$(ODIR)/JetAnalyzer.o $(ODIR)/dict.o $(ODIR)/ktTrackEff.o
-
-$(ODIR)/analysis_funcs.o	: $(SDIR)/analysis_funcs.cxx $(SDIR)/analysis_funcs.h
-$(ODIR)/ddc_matched.o		: $(SDIR)/ddc_matched.cxx $(SDIR)/analysis_funcs.h
-
-$(BDIR)/ddc_matched		: $(ODIR)/ddc_matched.o $(ODIR)/analysis_funcs.o $(ODIR)/dict.o $(ODIR)/ktTrackEff.o
+$(BDIR)/testing_wrapper			: $(ODIR)/testing_wrapper.o
 
 ###############################################################################
 ##################################### MISC ####################################
