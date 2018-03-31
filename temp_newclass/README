@@ -1,0 +1,12 @@
+This is a directory which tests my wrapper on the TLorentzVector class in ROOT. The only additional functionality is a vector of n tracks: {1,2,3,...,n}. The class will be used for tracks and jets. For jets, the length of the vector will be the multiplicity of the jet. For tracks, a constructor which does not set this vector will be used. Then, assuming for each event there is a TClonesArray of myLorentzVectors for constituents, and one for jets, one can access any constituents of a given jet: e.g. jet 0 has 3 tracks: access constituents 0,1,2; jet 1 has 5 tracks: access constituents 3,4,5,6,7.
+
+Eventually, the hope is to be able to add tracks back into a jet as part of the correction scheme, recluster, and calculate a new mass and pT. One could maintain a "post-correction" TClonesArray of these jets, adding the tracks in and reclustering before the jet is added to the list rather than doing it in-place (not even sure if this could be done anyway).
+
+To run this code:
+   "make" - this creates the shared library, telling ROOT about my class
+   
+   "make tests"
+   "./bin/tests" - tests the class member functions
+
+   "make reading_myLorentzVectors"
+   "./bin/reading_myLorentzVectors" - tests that ROOT correctly interprets these objects like TLorentzVectors.

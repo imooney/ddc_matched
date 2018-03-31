@@ -1,84 +1,81 @@
+###################################
+
+CXX	= g++
+LD	= g++
+
+###################################
+
 os = $(shell uname -s)
 
-# Include the configuration.
--include Makefile.inc
-
-INCFLAGS      = -I`root-config --incdir` -I$(ROOTSYS)/include -I$(FASTJETDIR)/include -I$(PYTHIA8DIR)/include -I/opt/local/include -I/usr/local/include
-
 ifeq ($(os),Linux)
-CXXFLAGS      = -std=c++11
+CXXFLAGS	= -I$(shell root-config --incdir) -std=c++11 -fPIC
 else
-CXXFLAGS      = -O -fPIC -pipe -Wall -Wno-deprecated-writable-strings -Wno-unused-variable -Wno-unused-private-field -Wno-gnu-static-float-init -std=c++11
-## for debugging:
-# CXXFLAGS      = -g -O0 -fPIC -pipe -Wall -Wno-deprecated-writable-strings -Wno-unused-variable -Wno-unused-private-field -Wno-gnu-static-float-init
+CXXFLAGS	= -O -std=c++11 -fPIC -pipe -Wall -dynamiclib -I$(shell root-config --incdir)
 endif
 
 ifeq ($(os),Linux)
-LDFLAGS       = -g
-LDFLAGSS      = -g --shared 
+LDFLAGS		= -g
+LDFLAGSS	= -g --shared
 else
-LDFLAGS       = -O -Xlinker -bind_at_load -flat_namespace
-LDFLAGSS      = -flat_namespace -undefined suppress
-LDFLAGSSS     = -bundle
+LDFLAGS		= -O -Xlinker -bind_at_load -flat_namespace
+LDFLAGSS  	= -dynamiclib -flat_namespace -undefined suppress
+LDFLAGSSS 	= -bundle
 endif
 
-ifeq ($(os),Linux)
-CXX          = g++ 
-else
-CXX          = clang
-endif
+ROOTLIBS	= $(shell root-config --libs)
+LIBS		= $(ROOTLIBS)
+
+INSTALL_DIR	= /usr/local
+GSL		= $(INSTALL_DIR)
+
+CXXFLAGSGSL 	= $(CXXFLAGS)
+CXXFLAGSGSL 	+= -I$(GSL)/include
+CXXFLAGSROOT 	= -I$(shell root-config --incdir) -std=c++11
+
+LIBSROOT       	= $(ROOTLIBS)
+LIBSGSL	       	= $(LIBS)
+LIBSGSL       	+= -L$(GSL)/lib -lgsl -lgslcblas
 
 
-ROOTLIBS      = $(shell root-config --libs)
+HDRS		= myLorentzVector.h LinkDef.h
+SRCS		= myLorentzVector.C dictmyLorentzVector.C
 
-LIBPATH       = $(ROOTLIBS) -L$(FASTJETDIR)/lib
-LIBS          = -lfastjet -lfastjettools -lpythia8
+OBJS		= $(SRCS:.C=.o)
 
+SLIB		= libmyLorentzVector.so
 
-# for cleanup
-SDIR          = src
-ODIR          = src/obj
-BDIR          = bin
+$(SLIB):	$(OBJS)
+		@echo "Linking $(PROGRAM) for "$(os)
+		@echo $(LD) $(LDFLAGSS) $(OBJS) $(LIBS) -o $(SLIB)
+		@$(LD) $(LDFLAGSS) $(OBJS) $(LIBS) -o $(SLIB)
+		@echo "done"
 
+#######################################
 
-###############################################################################
-################### Remake when these headers are touched #####################
-###############################################################################
+myLorentzVector.o:	myLorentzVector.h
 
+dictmyLorentzVector.C:	$(HDRS)
+		@echo "Generating dictionary ..."
+		@$(ROOTSYS)/bin/rootcint -f dictmyLorentzVector.C -c $(HDRS)
 
-###############################################################################
+.C.o:
+		$(CXX) $(CXXFLAGS) -c $<
 
-# standard rules
-$(ODIR)/%.o : $(SDIR)/%.cxx $(INCS)
-	    @echo 
-	    @echo COMPILING
-	    $(CXX) $(CXXFLAGS) $(INCFLAGS) -c $< -o $@
+tests:
+		g++ $(CXXFLAGSGSL) $(CXXFLAGSROOT) -c src/tests.C
+		g++ $(LDFLAGS) tests.o $(LIBSGSL) $(LIBSROOT) -L./ -lmyLorentzVector -o bin/tests
+		rm tests.o
 
-$(BDIR)/%  : $(ODIR)/%.o 
-	   @echo 
-	   @echo LINKING
-	   $(CXX) $(LDFLAGS) $(LIBPATH) $(LIBS) $^ -o $@
-
-###############################################################################
-
-###############################################################################
-############################# Main Targets ####################################
-###############################################################################
-
-all : $(BDIR)/testing_wrapper 
-
-$(ODIR)/testing_wrapper.o		: $(SDIR)/testing_wrapper.cxx $(SDIR)/testing_wrapper.h
-
-$(BDIR)/testing_wrapper			: $(ODIR)/testing_wrapper.o
-
-###############################################################################
-##################################### MISC ####################################
-###############################################################################
+reading_myLorentzVectors:
+		g++ $(CXXFLAGSGSL) $(CXXFLAGSROOT) -c reading_myLorentzVectors.C
+		g++ $(LDFLAGS) reading_myLorentzVectors.o $(LIBSGSL) $(LIBSROOT) -L./ -lmyLorentzVector -o bin/reading_myLorentzVectors
+		rm reading_myLorentzVectors.o
 
 clean :
-	@echo
-	@echo CLEANING
-	rm -vf $(ODIR)/*.o
-	#rm -vf out/*.root
-	rm -vf $(BDIR)/*
-	#rm -vf lib/*
+		rm -f *.o
+		rm -f *.o dict*.* $(SLIB)
+		rm bin/*	
+		rm *.root
+		@echo "All cleaned-up :-)"
+
+# DO NOT DELETE

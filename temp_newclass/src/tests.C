@@ -1,12 +1,3 @@
-#include "Pythia8/Pythia.h"
-#include "Pythia8/PhaseSpace.h"
-
-#include "fastjet/PseudoJet.hh"
-#include "fastjet/ClusterSequence.hh"
-#include "fastjet/Selector.hh"
-#include "fastjet/tools/Filter.hh"
-#include "fastjet/tools/Pruner.hh"
-
 #include "TROOT.h"
 #include "TRandom.h"
 #include "TFile.h"
@@ -23,18 +14,17 @@
 #include "TBranch.h"
 
 #include <iostream>
-#include <sstream>
-#include <random>
-#include <chrono>
-#include <string>
 
-#include "testing_wrapper.h"
+#include "../myLorentzVector.h"
 
 using namespace std;
 
+ClassImp(myLorentzVector)
+
+const int nJets = 10;
 int main () {
   cout << "~~~~~~~~~~testing class myLorentzVector!~~~~~~~~~~\n";
-
+  /*
   myLorentzVector * test = new myLorentzVector();
   myLorentzVector * test_fill = new myLorentzVector(1,2,3,4);
   cout << test_fill->Px() << '\n';
@@ -51,6 +41,20 @@ int main () {
   for (int i = 0; i < local_tracks_2.size(); ++ i) {
     cout << local_tracks_2[i] << '\n';
   }
+  */
+  TFile * f = new TFile("test.root","RECREATE");
+  TTree * t = new TTree("t","t");
+
+  TClonesArray tca ("myLorentzVector");
   
+  t->Branch("b",&tca);//, "myLorentzVector");
+
+  for (int i = 0; i < nJets; ++ i) {cout << "here\n"; new ( tca [i] ) myLorentzVector(i,2*i,3*i,4*i, i);}
+
+  t->Fill();
+
+  t->Write();
+  f->Write();
+
   return 0;
 }
