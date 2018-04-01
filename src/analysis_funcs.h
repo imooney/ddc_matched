@@ -31,6 +31,8 @@
 #include <random>
 #include <chrono>
 
+#include "../myLorentzVector.h"
+
 #ifndef analysis_funcs_h
 #define analysis_funcs_h
 
@@ -102,27 +104,6 @@ namespace analysis {
         
         void Clear();               //clears the particle vectors for each event
         void write();               //writes the trees to file
-    };
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~LORENTZ VECTOR WRAPPER~~~~~~~~~~~~~~~~~~~~~~~~~//
-    
-    class myLorentzVector : public TLorentzVector {
-    private:
-        std::vector<int> tracks;
-    public:
-        //constructor & destructor
-        myLorentzVector() : TLorentzVector(){}
-        myLorentzVector(const double px, const double py, const double pz, const double E) : TLorentzVector(px, py, pz, E) {}
-        
-        //getters & setters
-        std::vector<int> GetTracks() {return tracks;}
-        int GetMultiplicity() {return tracks.size();}
-        
-        void AddTrack() {tracks.push_back(GetMultiplicity() + 1);} //Counting from 1!!! I.e. multiplicity = 2 => track #1 and track #2
-        void AddTracks(int n) {for (int i = 0; i < n; ++ i) {tracks.push_back(GetMultiplicity() + 1);}}
-        
     };
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//

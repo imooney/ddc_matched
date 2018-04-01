@@ -30,6 +30,8 @@
 
 #include <math.h>
 
+#include "../../myLorentzVector.h"
+
 using namespace std;
 using namespace fastjet;
 
@@ -59,9 +61,9 @@ int main (){//(string filesize, string effic_type) {
     TH1 * mult = (TH1D*) effic->Get("mult");
     
     Double_t weight;
-    TClonesArray *part = new TClonesArray("TLorentzVector");
-    TClonesArray *det = new TClonesArray("TLorentzVector");
-    TClonesArray *cons = new TClonesArray("TLorentzVector");
+    TClonesArray *part = new TClonesArray("myLorentzVector");
+    TClonesArray *det = new TClonesArray("myLorentzVector");
+    TClonesArray *cons = new TClonesArray("myLorentzVector");
     matched->SetBranchAddress("c_matchedpartJets",&part);
     matched->SetBranchAddress("c_matcheddetJets",&det);
     matched->SetBranchAddress("c_matchedCons", &cons);
@@ -86,9 +88,6 @@ int main (){//(string filesize, string effic_type) {
 
     radial_dist->GetYaxis()->SetTitle("1/N_{jets} dN_{tracks}/d#DeltaR");
     radial_dist->GetXaxis()->SetTitle("#DeltaR");
-
-    //TCanvas *c0 = new TCanvas("c0","c0",800,800); c0->SetLogy(); c0->cd();
-    //radial_dist->Draw();
     
     for (unsigned i = 0; i < nEntries; ++i) {
         part->Clear(); det->Clear();
@@ -96,8 +95,8 @@ int main (){//(string filesize, string effic_type) {
         
         if (part->GetEntriesFast() != det->GetEntriesFast()) {cerr << "HEY WTF" << endl; exit(1);}
         for (unsigned j = 0; j < part->GetEntriesFast(); ++ j) {
-            TLorentzVector *partjet = (TLorentzVector*) part->At(j);
-            TLorentzVector *detjet = (TLorentzVector*) det->At(j);
+            myLorentzVector *partjet = (myLorentzVector*) part->At(j);
+            myLorentzVector *detjet = (myLorentzVector*) det->At(j);
             ptdiff->Fill(partjet->Pt() - detjet->Pt());
             ptpart->Fill(partjet->Pt());
             ptdet->Fill(detjet->Pt());

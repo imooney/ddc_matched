@@ -40,6 +40,9 @@
 #include <getopt.h>
 
 #include "analysis_funcs.h"
+#include "../myLorentzVector.h"
+
+ClassImp(myLorentzVector)
 
 using namespace fastjet;
 using namespace Pythia8;
@@ -188,47 +191,47 @@ int main(int argc, char ** argv) {
     //------------------------------------------------------------------------//
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~TClonesArrays for jets~~~~~~~~~~~~~~~~~~~~~~~~~//
-    TClonesArray *uJets = new TClonesArray("TLorentzVector");
+    TClonesArray *uJets = new TClonesArray("myLorentzVector");
     TClonesArray &uncutJets = *uJets;
     holder->tuncut->Branch("uncutJets", &uncutJets, 32000, 0);
-    TClonesArray cut2Jets ("TLorentzVector");
+    TClonesArray cut2Jets ("myLorentzVector");
     holder->tcut2->Branch("cut2Jets", &cut2Jets, 32000, 0);
-    TClonesArray efficJets ("TLorentzVector");
+    TClonesArray efficJets ("myLorentzVector");
     holder->teffic->Branch("efficJets", &efficJets, 32000, 0);
-    TClonesArray c_uncutJets ("TLorentzVector");
+    TClonesArray c_uncutJets ("myLorentzVector");
     holder->tcuncut->Branch("c_uncutJets", &c_uncutJets, 32000, 0);
-    TClonesArray c_cut2Jets ("TLorentzVector");
+    TClonesArray c_cut2Jets ("myLorentzVector");
     holder->tccut2->Branch("c_cut2Jets", &c_cut2Jets, 32000, 0);
-    TClonesArray *ceJets = new TClonesArray("TLorentzVector");
+    TClonesArray *ceJets = new TClonesArray("myLorentzVector");
     TClonesArray &c_efficJets = *ceJets;
     holder->tceffic->Branch("c_efficJets", &c_efficJets, 32000, 0);
-    TClonesArray matcheddetJets ("TLorentzVector");
+    TClonesArray matcheddetJets ("myLorentzVector");
     holder->tmatched->Branch("matcheddetJets", &matcheddetJets, 32000, 0);
-    TClonesArray matchedpartJets("TLorentzVector");
+    TClonesArray matchedpartJets("myLorentzVector");
     holder->tmatched->Branch("matchedpartJets", &matchedpartJets, 32000, 0);
-    TClonesArray c_matcheddetJets ("TLorentzVector");
+    TClonesArray c_matcheddetJets ("myLorentzVector");
     holder->tmatched->Branch("c_matcheddetJets", &c_matcheddetJets, 32000, 0);
-    TClonesArray c_matchedpartJets("TLorentzVector");
+    TClonesArray c_matchedpartJets("myLorentzVector");
     holder->tmatched->Branch("c_matchedpartJets", &c_matchedpartJets, 32000, 0);
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~TClonesArrays for cons~~~~~~~~~~~~~~~~~~~~~~~~~//
-    TClonesArray uncutCons ("TLorentzVector");
+    TClonesArray uncutCons ("myLorentzVector");
     holder->tuncutcons->Branch("uncutCons", &uncutCons, 32000, 0);
-    TClonesArray cut2Cons ("TLorentzVector");
+    TClonesArray cut2Cons ("myLorentzVector");
     holder->tcut2cons->Branch("cut2Cons", &cut2Cons, 32000, 0);
-    TClonesArray efficCons ("TLorentzVector");
+    TClonesArray efficCons ("myLorentzVector");
     holder->tefficcons->Branch("efficCons", &efficCons, 32000, 0);
-    TClonesArray matchedCons ("TLorentzVector");
+    TClonesArray matchedCons ("myLorentzVector");
     holder->tmatched->Branch("matchedCons", &matchedCons, 32000, 0);
-    TClonesArray c_uncutCons ("TLorentzVector");
+    TClonesArray c_uncutCons ("myLorentzVector");
     holder->tcuncutcons->Branch("c_uncutCons", &c_uncutCons, 32000, 0);
-    TClonesArray c_cut2Cons ("TLorentzVector");
+    TClonesArray c_cut2Cons ("myLorentzVector");
     holder->tccut2cons->Branch("c_cut2Cons", &c_cut2Cons, 32000, 0);
-    TClonesArray c_efficCons ("TLorentzVector");
+    TClonesArray c_efficCons ("myLorentzVector");
     holder->tcefficcons->Branch("c_efficCons", &c_efficCons, 32000, 0);
-    TClonesArray c_matchedCons ("TLorentzVector");
+    TClonesArray c_matchedCons ("myLorentzVector");
     holder->tmatched->Branch("c_matchedCons", &c_matchedCons, 32000, 0);
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -328,12 +331,12 @@ int main(int argc, char ** argv) {
             jetmarker = 0;
             for (unsigned i = 0; i < uncut_jets.size(); ++ i) {
                 uncutCons.Clear();
-                new ( uncutJets[jetmarker ++] ) TLorentzVector(uncut_jets[i].px(),uncut_jets[i].py(),
+                new ( uncutJets[jetmarker ++] ) myLorentzVector(uncut_jets[i].px(),uncut_jets[i].py(),
                                                                uncut_jets[i].pz(),uncut_jets[i].E());
                 vector<PseudoJet> uncut_cons = uncut_jets[i].constituents();
                 consmarker = 0;
                 for (unsigned j = 0; j < uncut_cons.size(); ++ j) {
-                    new ( uncutCons[consmarker ++] ) TLorentzVector(uncut_cons[j].px(),uncut_cons[j].py(),
+                    new ( uncutCons[consmarker ++] ) myLorentzVector(uncut_cons[j].px(),uncut_cons[j].py(),
                                                                     uncut_cons[j].pz(),uncut_cons[j].E());
                 }
                 holder->tuncutcons->Fill();
@@ -343,12 +346,12 @@ int main(int argc, char ** argv) {
             jetmarker = 0;
             for (unsigned i = 0; i < c_uncut_jets.size(); ++ i) {
                 c_uncutCons.Clear();
-                new ( c_uncutJets[jetmarker ++] ) TLorentzVector(c_uncut_jets[i].px(),c_uncut_jets[i].py(),
+                new ( c_uncutJets[jetmarker ++] ) myLorentzVector(c_uncut_jets[i].px(),c_uncut_jets[i].py(),
                                                                  c_uncut_jets[i].pz(),c_uncut_jets[i].E());
                 vector<PseudoJet> c_uncut_cons = c_uncut_jets[i].constituents();
                 consmarker = 0;
                 for (unsigned j = 0; j < c_uncut_cons.size(); ++ j) {
-                    new ( c_uncutCons[consmarker ++] ) TLorentzVector(c_uncut_cons[j].px(),c_uncut_cons[j].py(),
+                    new ( c_uncutCons[consmarker ++] ) myLorentzVector(c_uncut_cons[j].px(),c_uncut_cons[j].py(),
                                                                       c_uncut_cons[j].pz(),c_uncut_cons[j].E());
                 }
                 holder->tcuncutcons->Fill();
@@ -358,12 +361,12 @@ int main(int argc, char ** argv) {
             jetmarker = 0;
             for (unsigned i = 0; i < cut2_jets.size(); ++ i) {
                 cut2Cons.Clear();
-                new ( cut2Jets[jetmarker ++] ) TLorentzVector(cut2_jets[i].px(),cut2_jets[i].py(),
+                new ( cut2Jets[jetmarker ++] ) myLorentzVector(cut2_jets[i].px(),cut2_jets[i].py(),
                                                                 cut2_jets[i].pz(),cut2_jets[i].E());
                 vector<PseudoJet> cut2_cons = cut2_jets[i].constituents();
                 consmarker = 0;
                 for (unsigned j = 0; j < cut2_cons.size(); ++ j) {
-                    new ( cut2Cons[consmarker ++] ) TLorentzVector(cut2_cons[j].px(),cut2_cons[j].py(),
+                    new ( cut2Cons[consmarker ++] ) myLorentzVector(cut2_cons[j].px(),cut2_cons[j].py(),
                                                                     cut2_cons[j].pz(),cut2_cons[j].E());
                 }
                 holder->tcut2cons->Fill();
@@ -372,14 +375,14 @@ int main(int argc, char ** argv) {
             jetmarker = 0;
             for (unsigned i = 0; i < c_cut2_jets.size(); ++ i) {
                 c_cut2Cons.Clear();
-                new ( c_cut2Jets[jetmarker ++] ) TLorentzVector(c_cut2_jets[i].px(),c_cut2_jets[i].py(),
+                new ( c_cut2Jets[jetmarker ++] ) myLorentzVector(c_cut2_jets[i].px(),c_cut2_jets[i].py(),
                                                                 c_cut2_jets[i].pz(),c_cut2_jets[i].E());
                 vector<PseudoJet> c_cut2_cons = c_cut2_jets[i].constituents();
                 holder->ccut2mult = c_cut2_cons.size();
                 holder->tpartmult->Fill();
                 consmarker = 0;
                 for (unsigned j = 0; j < c_cut2_cons.size(); ++ j) {
-                    new ( c_cut2Cons[consmarker ++] ) TLorentzVector(c_cut2_cons[j].px(),c_cut2_cons[j].py(),
+                    new ( c_cut2Cons[consmarker ++] ) myLorentzVector(c_cut2_cons[j].px(),c_cut2_cons[j].py(),
                                                                         c_cut2_cons[j].pz(),c_cut2_cons[j].E());
                 }
                 holder->tccut2cons->Fill();
@@ -390,12 +393,12 @@ int main(int argc, char ** argv) {
             for (unsigned i = 0; i < effic_jets.size(); ++ i) {
                 if (detector_jet_cuts(effic_jets[i])) {
                     efficCons.Clear();
-                    new ( efficJets[jetmarker ++] ) TLorentzVector(effic_jets[i].px(),effic_jets[i].py(),
+                    new ( efficJets[jetmarker ++] ) myLorentzVector(effic_jets[i].px(),effic_jets[i].py(),
                                                                    effic_jets[i].pz(),effic_jets[i].E());
                     vector<PseudoJet> effic_cons = effic_jets[i].constituents();
                     consmarker = 0;
                     for (unsigned j = 0; j < effic_cons.size(); ++ j) {
-                        new ( efficCons[consmarker ++] ) TLorentzVector(effic_cons[j].px(),effic_cons[j].py(),
+                        new ( efficCons[consmarker ++] ) myLorentzVector(effic_cons[j].px(),effic_cons[j].py(),
                                                                         effic_cons[j].pz(),effic_cons[j].E());
                     }
                     holder->tefficcons->Fill();
@@ -406,14 +409,14 @@ int main(int argc, char ** argv) {
             for (unsigned i = 0; i < c_effic_jets.size(); ++ i) {
                 if (detector_jet_cuts(c_effic_jets[i])) {
                     c_efficCons.Clear();
-                    new ( c_efficJets[jetmarker ++] ) TLorentzVector(c_effic_jets[i].px(),c_effic_jets[i].py(),
+                    new ( c_efficJets[jetmarker ++] ) myLorentzVector(c_effic_jets[i].px(),c_effic_jets[i].py(),
                                                                      c_effic_jets[i].pz(),c_effic_jets[i].E());
                     vector<PseudoJet> c_effic_cons = c_effic_jets[i].constituents();
                     holder->cefficmult = c_effic_cons.size();
                     holder->tdetmult->Fill();
                     consmarker = 0;
                     for (unsigned j = 0; j < c_effic_cons.size(); ++ j) {
-                        new ( c_efficCons[consmarker ++] ) TLorentzVector(c_effic_cons[j].px(),c_effic_cons[j].py(),
+                        new ( c_efficCons[consmarker ++] ) myLorentzVector(c_effic_cons[j].px(),c_effic_cons[j].py(),
                                                                           c_effic_cons[j].pz(),c_effic_cons[j].E());
                     }
                     holder->tcefficcons->Fill();

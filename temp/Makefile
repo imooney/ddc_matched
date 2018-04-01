@@ -32,7 +32,7 @@ endif
 ROOTLIBS      = $(shell root-config --libs)
 
 LIBPATH       = $(ROOTLIBS) -L$(FASTJETDIR)/lib
-LIBS          = -lfastjet -lfastjettools -lpythia8
+LIBS          = -lfastjet -lfastjettools -lpythia8 -L./ -lmyLorentzVector
 
 
 # for cleanup
@@ -69,7 +69,7 @@ all : $(BDIR)/matchedjetdiffs
 
 $(ODIR)/matchedjetdiffs.o	: $(SDIR)/matchedjetdiffs.cxx
 
-$(BDIR)/matchedjetdiffs		: $(ODIR)/matchedjetdiffs.o
+$(BDIR)/matchedjetdiffs		: $(ODIR)/matchedjetdiffs.o ../libmyLorentzVector.so
 
 ###############################################################################
 ##################################### MISC ####################################

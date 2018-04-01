@@ -134,15 +134,15 @@ namespace analysis {
                 det_multiplicity = effic_jets[0].constituents().size();
 		
                 //fill TLorentzVectors with matched jets (particle & detector level)
-                new ( part[which ++] ) TLorentzVector(cut2_jets[i].px(),cut2_jets[i].py(),
-                                                          cut2_jets[i].pz(),cut2_jets[i].E());
-                new ( det[which - 1] ) TLorentzVector(effic_jets[0].px(),effic_jets[0].py(),
-                                                          effic_jets[0].pz(),effic_jets[0].E());
+                new ( part[which ++] ) myLorentzVector(cut2_jets[i].px(),cut2_jets[i].py(),
+                                                          cut2_jets[i].pz(),cut2_jets[i].E(), cut2_jets[i].constituents().size());
+                new ( det[which - 1] ) myLorentzVector(effic_jets[0].px(),effic_jets[0].py(),
+                                                          effic_jets[0].pz(),effic_jets[0].E(), effic_jets[0].constituents().size());
                 cons.Clear();
 		pseudo_particle_level_multiplicity = 0;
                 for (unsigned j = 0; j < effic_jets[0].constituents().size(); ++ j) {
 		  nTracks_matched += pythia.info.sigmaGen();
-                    new ( cons[j] ) TLorentzVector(effic_jets[0].constituents()[j].px(),effic_jets[0].constituents()[j].py(),
+                    new ( cons[j] ) myLorentzVector(effic_jets[0].constituents()[j].px(),effic_jets[0].constituents()[j].py(),
                                                        effic_jets[0].constituents()[j].pz(),effic_jets[0].constituents()[j].E());
 		    radial->Fill(effic_jets[0].delta_R(effic_jets[0].constituents()[j]),pythia.info.sigmaGen());//put weight back later
 		    radial_test->Fill(effic_jets[0].delta_R(effic_jets[0].constituents()[j]));

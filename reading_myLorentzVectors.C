@@ -22,7 +22,7 @@
 
 #include "myLorentzVector.h"
 
-ClassImp(myLorentzVector)
+//ClassImp(myLorentzVector)
 
 using namespace std;
 
