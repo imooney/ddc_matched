@@ -167,10 +167,12 @@ int main(int argc, char ** argv) {
     TH1 * numdiffmatched = new TH1D("numdiffmatched", "", 17, -2.5, 14.5);
     TH1 * numpartmatched = new TH1D("numpartmatched", "", 20, -0.5, 19.5);
     TH1 * numdetmatched = new TH1D("numdetmatched","",20,-0.5,19.5);
-    TH1 * ptconspartmatched = new TH1D("ptconspartmatched", "", 30,0.2, 30.2);
+    TH1 * ptconspartmatched = new TH1D("ptconspartmatched", "", 60,0.2, 60.2);
     TH1 * ptconsdetmatched = new TH1D("ptconsdetmatched", "", 30,0.2,30.2);
+    TH1 * ptpartmatched = new TH1D("ptpartmatched", "", 60,0.2, 60.2);
+    TH1 * ptdetmatched = new TH1D("ptdetmatched", "", 30,0.2,30.2);
+    TH1 * ptdiffmatched = new TH1D("ptdiffmatched", "", 30,0.2,30.2);
     TH1 * radial_distmatched = new TH1D("radial_distmatched","",nRange,-0.05,0.55);
-    TH1 * radial_distmatched_temp = new TH1D("radial_distmatched_temp","",nRange,-0.05,0.55);
 
     //temp histo:
     TH1 * pthat = new TH1D("pthat","",70,0,70);
@@ -257,10 +259,10 @@ int main(int argc, char ** argv) {
             //fill particle pT spectrum histograms
             if (!skinny_file) {
                 for (unsigned i = 0; i < holder->uncut_part.size(); ++ i) {
-		  testpt->Fill(holder->uncut_part[i].pt(), info.sigmaGen());
+		  testpt->Fill(holder->uncut_part[i].pt());//, info.sigmaGen());
                 }
                 for (unsigned i = 0; i < holder->c_uncut_part.size(); ++ i) {
-		  ctestpt->Fill(holder->c_uncut_part[i].pt(), info.sigmaGen());
+		  ctestpt->Fill(holder->c_uncut_part[i].pt());//, info.sigmaGen());
                 }
             }
             
@@ -430,15 +432,15 @@ int main(int argc, char ** argv) {
             
         //Filling particle-level histograms with charged leading jet info
         if (c_cut2_jets.size() != 0) {
-	  ptbefore->Fill(c_cut2_jets[0].pt(), info.sigmaGen());
-	  numbefore->Fill(c_cut2_jets[0].constituents().size(), info.sigmaGen());
+	  ptbefore->Fill(c_cut2_jets[0].pt());//, info.sigmaGen());
+	  numbefore->Fill(c_cut2_jets[0].constituents().size());//, info.sigmaGen());
         }
             
         //Filling detector-level histograms with charged leading jet info
         if (c_effic_jets.size() != 0) {
             if (detector_jet_cuts(c_effic_jets[0])) {
-	      ptprecorrection->Fill(c_effic_jets[0].pt(), info.sigmaGen());
-	      numprecorrection->Fill(c_effic_jets[0].constituents().size(), info.sigmaGen());
+	      ptprecorrection->Fill(c_effic_jets[0].pt());//, info.sigmaGen());
+	      numprecorrection->Fill(c_effic_jets[0].constituents().size());//, info.sigmaGen());
             }
         }
             
@@ -447,7 +449,7 @@ int main(int argc, char ** argv) {
             if (detector_jet_cuts(c_effic_jets[0])) {
                 vector<PseudoJet> c_effic_cons = c_effic_jets[0].constituents();
                 for (unsigned j = 0; j < c_effic_jets[0].constituents().size(); ++j) {
-		  c_cons_pt->Fill(c_effic_cons[j].pt(), info.sigmaGen());
+		  c_cons_pt->Fill(c_effic_cons[j].pt());//, info.sigmaGen());
                 }
             }
         }
@@ -461,8 +463,8 @@ int main(int argc, char ** argv) {
                                         holder->c_num_diff, holder->c_num_before,
                                         holder->c_num_after, holder->c_rel_diff, holder->tmatched,
 				   c_matchedpartJets, c_matcheddetJets, c_matchedCons,
-				   numdiffmatched, numpartmatched, numdetmatched, ptconspartmatched, ptconsdetmatched, radial_distmatched, radial_distmatched_temp, pthat,
-				   holder->det_multiplicity, nJets_matched, nJets_matched_temp, nTracks_matched, tEff, matched_weightsum);
+				   numdiffmatched, numpartmatched, numdetmatched, ptconspartmatched, ptconsdetmatched, ptpartmatched, ptdetmatched, ptdiffmatched, radial_distmatched, pthat,
+				   holder->det_multiplicity, nJets_matched, nTracks_matched, tEff, matched_weightsum);
             holder->tdiffs->Fill();
         }
             
@@ -478,10 +480,10 @@ int main(int argc, char ** argv) {
         if (c_efficJets.GetLast() > 0)    {holder->tceffic->Fill();}
             
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-	holder->weight = info.sigmaGen();
+	holder->weight = 1; //info.sigmaGen();
 	
 	//incrementing my own weightSum since pythia's isn't what I want
-	unmatched_weightsum += info.sigmaGen();
+	unmatched_weightsum ++; //+=info.sigmaGen();
         }//end of event loop!
     
     }//end of bin loop!
@@ -498,16 +500,18 @@ int main(int argc, char ** argv) {
     testpt->Scale((double) sigmaNorm); ctestpt->Scale(sigmaNorm);
     c_cons_pt->Scale(sigmaNorm / (double) nJets); ptbefore->Scale(sigmaNorm);
     ptprecorrection->Scale(sigmaNorm); numbefore->Scale(sigmaNorm);
-    numprecorrection->Scale(sigmaNorm); numdiffmatched->Scale(sigmaNorm);
-    numpartmatched->Scale(sigmaNorm); numdetmatched->Scale(sigmaNorm);
-    ptconspartmatched->Scale(sigmaNorm_matched); ptconsdetmatched->Scale(sigmaNorm_matched);//sigmaNorm);
+    numprecorrection->Scale(sigmaNorm); numdiffmatched->Scale(sigmaNorm_matched);
+    numpartmatched->Scale(sigmaNorm_matched); numdetmatched->Scale(sigmaNorm_matched);
+    ptconspartmatched->Scale(sigmaNorm_matched); ptconsdetmatched->Scale(sigmaNorm_matched);//sigmaNorm); // NOTE TO SELF: ONE (LEADING) JET PER MATCHED EVENT SO WE DON'T DIVIDE BY NUMBER OF JETS IN AN EVENT
+    ptpartmatched->Scale(sigmaNorm_matched); ptdetmatched->Scale(sigmaNorm_matched); ptdiffmatched->Scale(sigmaNorm_matched);
 
     //LATER: THINK ABOUT WHICH ONES SHOULD BE SCALED BY UNMATCHED WEIGHTSUM WHICH ONES SHOULD BE MATCHED WEIGHTSUM
 
     double binwidth_inverse_for_radial = 100.0; //100.0;  // 1/bin_width is 100 here, but not dividing by it, so the integral is average track multiplicity.
-    double sigmaNorm_for_radial = (double) (binwidth_inverse_for_radial);// / (double) unmatched_weightsum);
-    radial_distmatched->Scale(sigmaNorm_for_radial / (double) nJets_matched);
-    radial_distmatched_temp->Scale(sigmaNorm_for_radial / (double) nJets_matched_temp);
+    double sigmaNorm_for_radial = (double) (binwidth_inverse_for_radial / (double) matched_weightsum);
+    radial_distmatched->Scale(sigmaNorm_for_radial);// / (double) nJets_matched);
+
+    cout << setprecision(5) << nJets_matched << " " << sigmaNorm_matched << " " << matched_weightsum << '\n';
     
     pythia.stat();
     

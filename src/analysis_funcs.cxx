@@ -101,10 +101,10 @@ namespace analysis {
   void geometric_diff(Pythia8::Pythia & pythia, const std::vector<fastjet::PseudoJet> effic_jets, const std::vector<fastjet::PseudoJet> cut2_jets,
                         double & ptdiff, int & num_diff, int & num_before, int & num_after, double & rel_diff, TTree * matched,
 		      TClonesArray & part, TClonesArray & det, TClonesArray & cons,
-		      TH1 * hist, TH1 * hist1, TH1 * hist2, TH1 * cons_part_matched, TH1 * cons_det_matched, TH1 *radial, TH1* radial_test, TH1 *pthat,
-		      double & det_multiplicity, double & nJets_matched, double & nJets_matched_temp, double & nTracks_matched, ktTrackEff* te, double & matched_weightsum) {
+		      TH1 * hist, TH1 * hist1, TH1 * hist2, TH1 * cons_part_matched, TH1 * cons_det_matched, TH1 * part_matched, TH1* det_matched, TH1 * diff_matched, TH1 *radial, TH1 *pthat,
+		      double & det_multiplicity, double & nJets_matched, double & nTracks_matched, ktTrackEff* te, double & matched_weightsum) {
     //TEMPORARY PT HAT CUT!
-    if (pythia.info.pTHat() < 15) {return;}
+    //if (pythia.info.pTHat() < 15) {return;} //PUT THIS BACK LATER???
         //initializing relevant quantities
         double mindist  =   99999.0;
         double pt_diff  =  -99999.0;
@@ -127,10 +127,9 @@ namespace analysis {
             double dist = effic_jets[0].delta_R(cut2_jets[i]);
             //implies found a match with highest pT (since it's ordered by pT)
             if (dist < maxR) {
-	      pthat->Fill(pythia.info.pTHat(), pythia.info.sigmaGen());
-	      //will be used for weighting later -- just realized, this should actually be the same as matched_weightsum down below since there's one matched jet per matched jet event (duh)
-	      nJets_matched += pythia.info.sigmaGen(); //FIX THIS LATER PLEASEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE!
-	      nJets_matched_temp ++;
+                pthat->Fill(pythia.info.pTHat());//, pythia.info.sigmaGen());
+                //will be used for weighting later -- just realized, this should actually be the same as matched_weightsum down below since there's one matched jet per matched jet event (duh)
+                nJets_matched ++;//+= pythia.info.sigmaGen(); //FIX THIS LATER PLEASEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE!
                 det_multiplicity = effic_jets[0].constituents().size();
 		
                 //fill TLorentzVectors with matched jets (particle & detector level)
@@ -141,30 +140,33 @@ namespace analysis {
                 cons.Clear();
 		pseudo_particle_level_multiplicity = 0;
                 for (unsigned j = 0; j < effic_jets[0].constituents().size(); ++ j) {
-		  nTracks_matched += pythia.info.sigmaGen();
+                    nTracks_matched ++;//+= pythia.info.sigmaGen();
                     new ( cons[j] ) myLorentzVector(effic_jets[0].constituents()[j].px(),effic_jets[0].constituents()[j].py(),
                                                        effic_jets[0].constituents()[j].pz(),effic_jets[0].constituents()[j].E());
-		    radial->Fill(effic_jets[0].delta_R(effic_jets[0].constituents()[j]),pythia.info.sigmaGen());//put weight back later
-		    radial_test->Fill(effic_jets[0].delta_R(effic_jets[0].constituents()[j]));
+                    radial->Fill(effic_jets[0].delta_R(effic_jets[0].constituents()[j]));//,pythia.info.sigmaGen());//put weight back later
                 }
+
+		part_matched->Fill(cut2_jets[i].pt());
+		det_matched->Fill(effic_jets[0].pt());
+		diff_matched->Fill(cut2_jets[i].pt() - effic_jets[0].pt());
 
 		//these two loops fill the constituent pt spectra for matched jets (particle & detector level)
                 for (unsigned j = 0; j < cut2_jets[i].constituents().size(); ++ j) {
-                    cons_part_matched->Fill(cut2_jets[i].constituents()[j].pt(), pythia.info.sigmaGen());
+                    cons_part_matched->Fill(cut2_jets[i].constituents()[j].pt());//, pythia.info.sigmaGen());
                 }
-		for (unsigned j = 0; j < effic_jets[0].constituents().size(); ++ j) {
-                    cons_det_matched->Fill(effic_jets[0].constituents()[j].pt(), pythia.info.sigmaGen());
+                for (unsigned j = 0; j < effic_jets[0].constituents().size(); ++ j) {
+                    cons_det_matched->Fill(effic_jets[0].constituents()[j].pt());//, pythia.info.sigmaGen());
                 }
 
 		//filling multiplicity & number loss histograms
-                hist->Fill(cut2_jets[i].constituents().size() - effic_jets[0].constituents().size(), pythia.info.sigmaGen());
-                hist1->Fill(cut2_jets[i].constituents().size(), pythia.info.sigmaGen());
-                hist2->Fill(effic_jets[0].constituents().size(), pythia.info.sigmaGen());
+                hist->Fill(cut2_jets[i].constituents().size() - effic_jets[0].constituents().size());//, pythia.info.sigmaGen());
+                hist1->Fill(cut2_jets[i].constituents().size());//, pythia.info.sigmaGen());
+                hist2->Fill(effic_jets[0].constituents().size());//, pythia.info.sigmaGen());
 		
                 matched->Fill();
 
 		//will use as an overall weight later
-		matched_weightsum += pythia.info.sigmaGen();
+                matched_weightsum ++;//+= pythia.info.sigmaGen();
                 return;
                 //break;
             }

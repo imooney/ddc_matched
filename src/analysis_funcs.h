@@ -69,7 +69,7 @@ namespace analysis {
     //examines the pT & num difference between efficiency-corrected, and non-efficiency-corrected 'leading' jets
     void geometric_diff(Pythia8::Pythia &, const std::vector<fastjet::PseudoJet> effic_jets, const std::vector<fastjet::PseudoJet> cut2_jets,
                         double & ptdiff, int & num_diff, int & num_before, int & num_after, double & rel_diff, TTree *,
-			TClonesArray &, TClonesArray &, TClonesArray &, TH1 *, TH1 *, TH1 *, TH1 *, TH1 *, TH1 *, TH1 *, TH1 *, double &, double &, double &, double &, ktTrackEff*, double &);
+			TClonesArray &, TClonesArray &, TClonesArray &, TH1 *, TH1 *, TH1 *, TH1 *, TH1 *, TH1 *, TH1 *, TH1* , TH1*, TH1 *, double &, double &, double &, ktTrackEff*, double &);
     
     //TLorentzVector MakeTLorentzVector(const fastjet::PseudoJet & pj);
     

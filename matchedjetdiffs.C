@@ -16,12 +16,13 @@
 #include "TProfile.h"
 #include "TCanvas.h"
 #include "TStyle.h"
-
+/*
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/Selector.hh"
 #include "fastjet/tools/Filter.hh"
 #include "fastjet/tools/Pruner.hh"
+*/
 
 #include <iostream>
 #include <sstream>
@@ -48,7 +49,7 @@ void matchedjetdiffs (){//(string filesize, string effic_type) {
     TFile *input = new TFile(("out/ddc_matched_" + filesize + "_" + effic_type + ".root").c_str(), "READ");
     TTree *matched = (TTree*) input->Get("matchedJets");
     TF1 * nbnaive = new TF1("nbnaive","ROOT::Math::negative_binomial_pdf(x,0.8,1)",-0.5, 10.5);
-    TF1 * poisnaive = new TF1("poisnaive","ROOT::Math::poisson_pdf(x,1.22)"/*0.63)*/ /*0.4764)"*/,-0.5,10.5);
+    TF1 * poisnaive = new TF1("poisnaive","ROOT::Math::poisson_pdf(x,1.4)"/*0.63)"*/ /*0.4764)"*/,-0.5,10.5);
     TF1 * binnaive = new TF1("binnaive","ROOT::Math::binomial_pdf(x,0.2,5)",-0.5,10.5);
     TH1 * numdiff = (TH1D*) input->Get("numdiffmatched");
     TH1 * radial_dist = (TH1D*) input->Get("radial_distmatched");
@@ -67,10 +68,10 @@ void matchedjetdiffs (){//(string filesize, string effic_type) {
     TFile *out = new TFile(("out/matchedout_" + filesize + "_" + effic_type + ".root").c_str(), "RECREATE");
     
     TH1 *ptdiff = new TH1D("ptdiff",""/*"p_{T} Difference"*/,100,0,100);
-    TH1 *ptpart = new TH1D("ptpart",""/*"Particle-level charged leading matched jet p_{T}"*/, 15, 15, 30);
-    TH1 *ptdet = new TH1D("ptdet",""/*"Detector-level charged leading matched jet p_{T}"*/, 15, 15, 30);
-    TH1 *ptcorr = new TH1D("ptcorr_real",""/*"Corrected detector-level jet p_{T}"*/, 15, 15, 30);
-    TH1 *ptadded = new TH1D("ptadded",""/*"p_{T} added back"*/, 100, 0, 100);
+    TH1 *ptpart = new TH1D("ptpart",""/*"Particle-level charged leading matched jet p_{T}"*/, 60, 0, 60);
+    TH1 *ptdet = new TH1D("ptdet",""/*"Detector-level charged leading matched jet p_{T}"*/, 60, 0, 60);
+    TH1 *ptcorr = new TH1D("ptcorr_real",""/*"Corrected detector-level jet p_{T}"*/, 60, 0, 60);
+    TH1 *ptadded = new TH1D("ptadded",""/*"p_{T} added back"*/, 60, 0, 60);
     TH1 *numadded = new TH1D("numadded","",20,-0.5,19.5);
     
     unsigned nEntries = matched->GetEntries(); //number of charged jets
@@ -95,27 +96,26 @@ void matchedjetdiffs (){//(string filesize, string effic_type) {
             
             Double_t ptadd = 0;
             
-            double ktop = poisnaive->GetRandom();
+            /*double*/int ktop = poisnaive->GetRandom();
             numadded->Fill((int) ktop);
-
-            fastjet::PseudoJet jet_add = fastjet::PseudoJet(0,0,0,0);
 	    
+            //fastjet::PseudoJet jet_add = fastjet::PseudoJet(0,0,0,0);
             for (unsigned k = 0; k < ktop; ++ k) {
-	      pt_single = mult->GetRandom();
-	      phi_dist = gRandom->Uniform(0.0, 2pi);
-	      rad_dist = radial_dist->GetRandom();
-	      eta_dist = rad_dist*cos(phi_dist);
-	      phi_abs = detjet->phi() + phi_dist;
-	      rap_abs = detjet->rap() + eta_dist;
-	      m_track = m_pi0;
+	      
+                double pt_single = mult->GetRandom();
+                /*phi_dist = gRandom->Uniform(0.0, 2pi);
+                rad_dist = radial_dist->GetRandom();
+                eta_dist = rad_dist*cos(phi_dist);
+                phi_abs = detjet->phi() + phi_dist;
+                rap_abs = detjet->rap() + eta_dist;
+                m_track = m_pi0;
 
               fastjet::PseudoJet track_add = fastjet::PseudoJet(0,0,0,0);
               track_add->reset_PtYPhiM(pt_single, rap_abs, phi_abs, m_track);
 
-              jet_add += track_add;
-	      ptadd += pt_single;
-	      
-            }
+              jet_add += track_add;*/
+                ptadd += pt_single;
+	    }
             ptadded->Fill(ptadd);
             
             ptcorr->Fill(detjet->Pt() + ptadd);
